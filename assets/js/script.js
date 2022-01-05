@@ -6,7 +6,7 @@ const tasksInProgressEl = document.querySelector('#tasks-in-progress');
 const tasksCompletedEl = document.querySelector('#tasks-completed');
 const pageContentEl = document.querySelector('#page-content');
 
-const tasks = []
+let tasks = []
 
 const taskFormHandler = event => {
     event.preventDefault();
@@ -42,9 +42,6 @@ const taskFormHandler = event => {
 }
 
 const createTaskEl = taskDataObj => {
-    console.log(taskDataObj);
-    console.log(taskDataObj.status);
-
     const listItemEl = document.createElement('li');
     listItemEl.className = 'task-item';
     listItemEl.setAttribute('data-task-id', taskIdCounter);
@@ -58,6 +55,23 @@ const createTaskEl = taskDataObj => {
     const taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
     tasksToDoEl.appendChild(listItemEl);
+
+    switch (taskDataObj.status) {
+    case "to do":
+      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 0;
+      tasksToDoEl.append(listItemEl);
+      break;
+    case "in progress":
+      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 1;
+      tasksInProgressEl.append(listItemEl);
+      break;
+    case "completed":
+      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 2;
+      tasksCompletedEl.append(listItemEl);
+      break;
+    default:
+      console.log("Something went wrong!");
+  }
 
     taskDataObj.id = taskIdCounter;
     
@@ -134,7 +148,6 @@ const editTask = taskId => {
 
     // get content for task name and type
     const taskName = taskSelected.querySelector('h3.task-name').textContent;
-    
     const taskType = taskSelected.querySelector('span.task-type').textContent;
     
     document.querySelector("input[name='task-name']").value = taskName;
@@ -159,7 +172,6 @@ const completeEditTask = (taskName, taskType, taskId) => {
             tasks[i].type = taskType;
         }
     }
-    console.log(tasks);
     
     alert('Task Updated!');
     
@@ -218,13 +230,30 @@ const taskStatusChangeHandler = event => {
             tasks[i].status = statusValue;
         }
     }
-    console.log(tasks);
-
     saveTasks();
 }
 
 const saveTasks = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// gets task items from localStorage
+// converts tasks from the string format back into an array of objects
+// iterates through a tasks array and creates task elements on the page from it
+const loadTasks = () => {
+    let savedTasks = localStorage.getItem('tasks');
+
+    if (!savedTasks) {
+        return false;
+    }
+
+    savedTasks = JSON.parse(savedTasks);
+
+    // loop through savedTasks arr
+    for (let i=0; i<savedTasks.length; i++) {
+        // pass each task into the createTaskEl() func
+        createTaskEl(savedTasks[i]);
+    }
 }
 
 // add new task
@@ -233,3 +262,5 @@ formEl.addEventListener('submit', taskFormHandler);
 pageContentEl.addEventListener('click', taskButtonHandler);
 // change task status
 pageContentEl.addEventListener('change', taskStatusChangeHandler);
+
+loadTasks();
