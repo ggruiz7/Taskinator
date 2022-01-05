@@ -65,6 +65,8 @@ const createTaskEl = taskDataObj => {
 
     // increase task counter for next unique id
     taskIdCounter++;
+
+    saveTasks();
 }
 
 const createTaskActions = taskId => {
@@ -165,6 +167,8 @@ const completeEditTask = (taskName, taskType, taskId) => {
     formEl.removeAttribute('data-task-id');
     // update fromEl button to go back to saying 'add task'
     document.querySelector('#save-task').textContent = 'Add Task';
+
+    saveTasks();
 }
 
 const deleteTask = taskId => {
@@ -184,6 +188,8 @@ const deleteTask = taskId => {
 
     // reassign tasks array to be the same as the updated tasks array
     tasks = updatedTaskArr;
+
+    saveTasks();
 }
 
 const taskStatusChangeHandler = event => {
@@ -213,6 +219,12 @@ const taskStatusChangeHandler = event => {
         }
     }
     console.log(tasks);
+
+    saveTasks();
+}
+
+const saveTasks = () => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 // add new task
